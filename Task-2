@@ -1,0 +1,29 @@
+import pytesseract
+
+def extract_values(image, areas):
+    values = {}
+
+    for area in areas:
+        # Crop the region of interest (ROI) from the image
+        roi = image[area[1]:area[3], area[0]:area[2]]
+
+        # Convert the ROI to grayscale
+        gray_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+
+        # Use OCR to extract text
+        text = pytesseract.image_to_string(gray_roi, config='--psm 8')
+
+        # Extract numeric values (customize as per your OCR output)
+        numeric_values = [int(s) for s in text.split() if s.isdigit()]
+
+        # Assuming the first numeric value is heart rate and the second is oxygen saturation
+        if len(numeric_values) >= 2:
+            values['heart_rate'] = numeric_values[0]
+            values['oxygen_saturation'] = numeric_values[1]
+
+    return values
+
+# Example usage
+img = cv2.imread(image_path)
+result_values = extract_values(img, data_areas)
+print("Extracted Values:", result_values)
